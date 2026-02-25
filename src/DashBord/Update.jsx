@@ -1,13 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from 'react-toastify';
 import UseAxiosSecure from '../Hooks/UseAxiosSecure';
 import UseAuth from '../Hooks/UseAuth';
 import LoadingPages from '../Pages/LoadingPages';
-import { FiEdit2, FiTrash2, FiCalendar, FiDollarSign, FiUser, FiShoppingBag, FiInfo } from 'react-icons/fi';
+import {
+  FiEdit2, FiCalendar, FiDollarSign,
+  FiUser, FiShoppingBag, FiInfo, FiClock
+} from 'react-icons/fi';
 
 const Update = () => {
   const { id } = useParams();
@@ -15,6 +18,9 @@ const Update = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const { user } = UseAuth();
+
+  // Keep track of the original pricePerUnit loaded from DB
+  const originalPriceRef = useRef(null);
 
   const {
     register,
@@ -30,7 +36,7 @@ const Update = () => {
     }
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append } = useFieldArray({
     control,
     name: "prices"
   });
@@ -56,6 +62,9 @@ const Update = () => {
           product.prices = [];
         }
 
+        // Save original price for comparison later
+        originalPriceRef.current = product.pricePerUnit;
+
         reset(product);
       } catch (error) {
         console.error("Failed to load product:", error);
@@ -72,16 +81,51 @@ const Update = () => {
   const onSubmit = async (data) => {
     setSubmitting(true);
     try {
+      const currentPrices = data.prices || [];
+
+      // Get last price in history
+      const lastHistoryPrice =
+        currentPrices.length > 0
+          ? String(currentPrices[currentPrices.length - 1].price)
+          : null;
+
+      // Only add new history entry if pricePerUnit changed from what's already last in history
+      let updatedPrices = [...currentPrices];
+      if (String(data.pricePerUnit) !== lastHistoryPrice) {
+        updatedPrices = [
+          ...currentPrices,
+          { date: new Date(), price: data.pricePerUnit }
+        ];
+      }
+
+      // Keep only the last 7 entries — remove oldest if exceeded
+      if (updatedPrices.length > 7) {
+        updatedPrices = updatedPrices.slice(updatedPrices.length - 7);
+      }
+
       const updatedData = {
         ...data,
-        date: data.date.toISOString(),
-        prices: data.prices.map(price => ({
+        date: data.date instanceof Date ? data.date.toISOString() : data.date,
+        prices: updatedPrices.map(price => ({
           ...price,
-          date: price.date.toISOString().split("T")[0]
+          date:
+            price.date instanceof Date
+              ? price.date.toISOString().split("T")[0]
+              : price.date
         }))
       };
 
       await axiosSecure.put(`/products/${id}`, updatedData);
+
+      // Update the original price ref so subsequent saves work correctly
+      originalPriceRef.current = data.pricePerUnit;
+
+      // Re-sync form with updated prices
+      reset({
+        ...data,
+        prices: updatedPrices
+      });
+
       toast.success("Product updated successfully!", {
         position: "top-center",
         autoClose: 3000,
@@ -102,9 +146,21 @@ const Update = () => {
 
   const dateValue = watch("date") || new Date();
 
+  // Helper to format date nicely
+  const formatDate = (date) => {
+    if (!date) return "—";
+    const d = date instanceof Date ? date : new Date(date);
+    return d.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+  };
+
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
+
         {/* Form Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-6 py-4">
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -117,7 +173,8 @@ const Update = () => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
-          {/* Vendor Information */}
+
+          {/* ── Vendor Information ─────────────────────────────────── */}
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 flex items-center gap-2">
               <FiUser className="text-blue-500" />
@@ -147,7 +204,7 @@ const Update = () => {
             </div>
           </div>
 
-          {/* Market Information */}
+          {/* ── Market Information ─────────────────────────────────── */}
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 flex items-center gap-2">
               <FiShoppingBag className="text-blue-500" />
@@ -179,7 +236,7 @@ const Update = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     dateFormat="MMMM d, yyyy"
                   />
-                  <FiCalendar className="absolute right-3 top-2.5 text-gray-400" />
+                  <FiCalendar className="absolute right-3 top-2.5 text-gray-400 pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -200,7 +257,7 @@ const Update = () => {
             </div>
           </div>
 
-          {/* Product Information */}
+          {/* ── Product Information ────────────────────────────────── */}
           <div className="space-y-6">
             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 flex items-center gap-2">
               <FiInfo className="text-green-500" />
@@ -221,24 +278,33 @@ const Update = () => {
                   <p className="mt-1 text-sm text-red-600">Item name is required</p>
                 )}
               </div>
+
+              {/* Price Per Unit — changing this adds a new history entry on save */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Price per Unit <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
+                    type="number"
+                    step="any"
                     {...register("pricePerUnit", { required: true })}
                     className={`w-full px-4 py-2 pl-8 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
                       errors.pricePerUnit ? "border-red-500" : "border-gray-300"
                     }`}
+                    placeholder="0.00"
                   />
                   <FiDollarSign className="absolute left-3 top-2.5 text-gray-400" />
                 </div>
                 {errors.pricePerUnit && (
                   <p className="mt-1 text-sm text-red-600">Price per unit is required</p>
                 )}
+                <p className="mt-1 text-xs text-gray-400 italic">
+                  Changing this value will add a new entry to Price History on save.
+                </p>
               </div>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Product Image URL
@@ -246,8 +312,10 @@ const Update = () => {
               <input
                 {...register("image")}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="https://..."
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Status
@@ -260,52 +328,82 @@ const Update = () => {
             </div>
           </div>
 
-          {/* Price History */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 flex items-center gap-2">
-              <FiDollarSign className="text-green-500" />
-              Price History
+          {/* ── Price History (Read-Only Timeline) ────────────────── */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <FiClock className="text-green-500" />
+                Price History
+              </span>
+              <span className="text-xs font-normal text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+                {fields.length}/7 entries
+              </span>
             </h3>
-            <div className="space-y-4">
-              {fields.map((item, index) => (
-                <div key={item.id} className="flex gap-4 items-center">
-                  <div className="flex-1">
-                    <DatePicker
-                      selected={watch(`prices.${index}.date`)}
-                      onChange={(date) => setValue(`prices.${index}.date`, date)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                      dateFormat="yyyy-MM-dd"
-                    />
-                  </div>
-                  <div className="flex-1 relative">
-                    <input
-                      type="number"
-                      {...register(`prices.${index}.price`, { required: true })}
-                      className="w-full px-4 py-2 pl-8 border border-gray-300 rounded-lg"
-                      placeholder="Price"
-                    />
-                    <FiDollarSign className="absolute left-3 top-2.5 text-gray-400" />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="p-2 text-red-500 hover:text-red-700 rounded-full hover:bg-red-50"
-                  >
-                    <FiTrash2 />
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => append({ date: new Date(), price: "" })}
-                className="flex items-center gap-2 text-green-600 hover:text-green-800 text-sm font-medium"
-              >
-                Add Price Entry
-              </button>
-            </div>
+
+            {fields.length === 0 ? (
+              <p className="text-sm text-gray-400 italic">
+                No price history yet. Save with a price to start tracking. (Max 7 entries kept)
+              </p>
+            ) : (
+              <div className="relative">
+                {/* vertical timeline line */}
+                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200" />
+
+                <ul className="space-y-3 pl-12">
+                  {fields.map((item, index) => {
+                    const isLast = index === fields.length - 1;
+                    const priceVal = watch(`prices.${index}.price`);
+                    const dateVal = watch(`prices.${index}.date`);
+
+                    return (
+                      <li key={item.id} className="relative">
+                        {/* dot */}
+                        <span
+                          className={`absolute -left-8 top-2 w-3 h-3 rounded-full border-2 ${
+                            isLast
+                              ? "bg-green-500 border-green-500"
+                              : "bg-white border-gray-300"
+                          }`}
+                        />
+
+                        <div
+                          className={`flex items-center justify-between px-4 py-3 rounded-lg ${
+                            isLast
+                              ? "bg-green-50 border border-green-200"
+                              : "bg-gray-50 border border-gray-100"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <FiCalendar className="text-gray-400" />
+                            <span>{formatDate(dateVal)}</span>
+                          </div>
+                          <div
+                            className={`flex items-center gap-1 font-semibold text-sm ${
+                              isLast ? "text-green-700" : "text-gray-600"
+                            }`}
+                          >
+                            <FiDollarSign />
+                            <span>{priceVal}</span>
+                            {isLast && (
+                              <span className="ml-2 text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full font-medium">
+                                Current
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Hidden inputs so react-hook-form keeps values */}
+                        <input type="hidden" {...register(`prices.${index}.price`)} />
+                        <input type="hidden" {...register(`prices.${index}.date`)} />
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
           </div>
 
-          {/* Product Description */}
+          {/* ── Product Description ────────────────────────────────── */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Product Description
@@ -317,7 +415,7 @@ const Update = () => {
             />
           </div>
 
-          {/* Submit Button */}
+          {/* ── Submit ─────────────────────────────────────────────── */}
           <div className="pt-4">
             <button
               type="submit"
@@ -328,9 +426,25 @@ const Update = () => {
             >
               {submitting ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
                   </svg>
                   Updating...
                 </span>
@@ -339,6 +453,7 @@ const Update = () => {
               )}
             </button>
           </div>
+
         </form>
       </div>
     </div>

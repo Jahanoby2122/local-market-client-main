@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import UseAuth from '../Hooks/UseAuth';
 import { FiStar, FiPlus, FiTrash2, FiAlertTriangle, FiShoppingBag, FiCalendar,  } from 'react-icons/fi';
 import { confirmAlert } from 'react-confirm-alert';

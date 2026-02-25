@@ -3,6 +3,11 @@
 ## Color Palettes
 
 ### Admin Dashboard - Dark & Professional
+
+> **Theme switching**  
+The application now supports a global light/dark toggle.  The `<html>` element receives a `dark` class and `data-theme` attribute, driven by a `ThemeProvider`.  Components should use Tailwind `dark:` variants or daisyUI utilities (e.g. `bg-base-100`, `text-base-content`) so styles automatically invert.  User preference is saved to `localStorage` and initial value respects the `prefers-color-scheme` media query.
+
+
 ```
 Primary Background:    #111827 (Gray-900)
 Secondary Background:  #1F2937 (Gray-800)

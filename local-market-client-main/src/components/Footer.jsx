@@ -6,7 +6,7 @@ import {
   FaPhoneAlt,
   FaEnvelope,
 } from "react-icons/fa";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import logo from "../assets/LocalMarket.png";
 
 const Footer = () => {

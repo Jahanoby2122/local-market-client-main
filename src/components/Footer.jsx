@@ -6,10 +6,13 @@ import {
   FaPhoneAlt,
   FaEnvelope,
 } from "react-icons/fa";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
+import UseAuth from "../Hooks/UseAuth";
 import logo from "../assets/LocalMarket.png";
 
 const Footer = () => {
+  const { user } = UseAuth();
+
   return (
     <footer className="bg-[#1f3329] text-gray-300 px-6 md:px-12 lg:px-20 pt-14">
       <div className="max-w-7xl mx-auto">
@@ -58,16 +61,21 @@ const Footer = () => {
                   All Products
                 </Link>
               </li>
-              <li>
-                <Link to="/login" className="hover:text-yellow-400 transition">
-                  Login
-                </Link>
-              </li>
-              <li>
-                <Link to="/signup" className="hover:text-yellow-400 transition">
-                  Sign Up
-                </Link>
-              </li>
+              {/* only show auth links when user is not logged in */}
+              {!user && (
+                <>
+                  <li>
+                    <Link to="/login" className="hover:text-yellow-400 transition">
+                      Login
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/signup" className="hover:text-yellow-400 transition">
+                      Sign Up
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
 

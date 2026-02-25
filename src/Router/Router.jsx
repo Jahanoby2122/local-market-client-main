@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../Layout/MainLayout";
 import Home from "../components/Home";
 import Banner from "../components/Banner";
@@ -25,7 +25,11 @@ import ErrorPages from "../Pages/ErrorPages";
 import AllOrders from "../DashBord/AllOrders";
 import AboutUs from "../Pages/AboutUs";
 import Support from "../Pages/Support";
-import UserInfoPanel from "../DashBord/UserInfoPanel";
+import Terms from "../Pages/Terms";
+import Privacy from "../Pages/Privacy";
+import Faq from "../Pages/Faq";
+import Profile from "../DashBordLayout/Profile";
+
 
 
 export const router = createBrowserRouter([
@@ -63,6 +67,18 @@ export const router = createBrowserRouter([
         element:<Support></Support>
       },
       {
+        path: '/terms',
+        element: <Terms />
+      },
+      {
+        path: '/privacy',
+        element: <Privacy />
+      },
+      {
+        path: '/faq',
+        element: <Faq />
+      },
+      {
       path: 'viewdetails/:id',
       loader: async ({ params }) => {
         const res = await fetch(`https://local-market-server.vercel.app/products/${params.id}`);
@@ -85,10 +101,7 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
         children: [
-          {
-            index: true,
-            element: <UserInfoPanel></UserInfoPanel>
-          },
+      
           {
             path:'myproduct',
             element: <MyProduct></MyProduct>,
@@ -143,9 +156,10 @@ export const router = createBrowserRouter([
             element:<Update></Update>
           },
           {
-            path:'userinfopannel',
-            element:<UserInfoPanel></UserInfoPanel>
+            path:'profile',
+            element: <Profile></Profile>
           }
+      
          
           
         ],

@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import NavBar from '../components/NavBar';
-import { Outlet, useLocation } from 'react-router';
+import { Outlet, useLocation } from 'react-router-dom';
 import Footer from '../components/Footer';
 import LoadingPages from '../Pages/LoadingPages';
 

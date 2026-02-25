@@ -5,22 +5,405 @@ import "react-datepicker/dist/react-datepicker.css";
 import UseAxiosSecure from "../Hooks/UseAxiosSecure";
 import { toast } from "react-toastify";
 import UseAuth from "../Hooks/UseAuth";
-import { 
-  FiLink, 
-  FiCalendar, 
-  FiDollarSign, 
-  FiUser, 
-  FiShoppingBag, 
-  FiInfo, 
-  FiPlus, 
-  FiTrash2 
+import {
+  FiLink,
+  FiCalendar,
+  FiDollarSign,
+  FiUser,
+  FiShoppingBag,
+  FiInfo,
+  FiPackage,
+  FiClock,
+  FiCheckCircle,
 } from "react-icons/fi";
 
+/* ─── Inline styles / CSS-in-JS ─────────────────────────────────────────── */
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
+
+  .apf-root {
+    --color-bg: #f7f6f3;
+    --color-surface: #ffffff;
+    --color-primary: #1a1a2e;
+    --color-accent: #e8572a;
+    --color-accent-soft: #fdf0eb;
+    --color-border: #e2e0da;
+    --color-muted: #9b9589;
+    --color-text: #1a1a1e;
+    --color-label: #5a5650;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,.10);
+    font-family: 'DM Sans', sans-serif;
+    background: var(--color-bg);
+    min-height: 100vh;
+    padding: 48px 16px 80px;
+    color: var(--color-text);
+  }
+
+  .apf-inner {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .apf-header {
+    margin-bottom: 48px;
+  }
+
+  .apf-header-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    background: var(--color-accent-soft);
+    border: 1px solid #f0c9b8;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+  }
+
+  .apf-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--color-primary);
+    margin: 0 0 8px;
+  }
+
+  .apf-header p {
+    font-size: 15px;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  /* ── Card ── */
+  .apf-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  /* ── Section ── */
+  .apf-section {
+    padding: 36px 40px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .apf-section:last-child {
+    border-bottom: none;
+  }
+
+  .apf-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .apf-section-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--color-accent-soft);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  .apf-section-header h2 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    color: var(--color-primary);
+    margin: 0;
+  }
+
+  .apf-section-header span {
+    font-size: 12px;
+    color: var(--color-muted);
+    margin-left: 4px;
+    font-weight: 400;
+  }
+
+  /* ── Grid ── */
+  .apf-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 640px) {
+    .apf-grid-2 { grid-template-columns: 1fr; }
+    .apf-section { padding: 28px 20px; }
+    .apf-header h1 { font-size: 28px; }
+  }
+
+  /* ── Field ── */
+  .apf-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .apf-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--color-label);
+  }
+
+  .apf-input {
+    width: 100%;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--color-text);
+    background: var(--color-bg);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: border-color .18s, box-shadow .18s, background .18s;
+    box-sizing: border-box;
+  }
+
+  .apf-input:focus {
+    border-color: var(--color-accent);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(232,87,42,.10);
+  }
+
+  .apf-input[readonly], .apf-input:read-only {
+    color: var(--color-muted);
+    cursor: default;
+    background: #f0eee9;
+  }
+
+  .apf-input.has-error {
+    border-color: #d94f4f;
+  }
+
+  .apf-error {
+    font-size: 11px;
+    color: #d94f4f;
+    font-weight: 500;
+  }
+
+  .apf-textarea {
+    resize: vertical;
+    min-height: 96px;
+  }
+
+  /* ── Price field with icon ── */
+  .apf-price-wrap {
+    position: relative;
+  }
+
+  .apf-price-wrap .apf-input {
+    padding-left: 38px;
+  }
+
+  .apf-price-icon {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-muted);
+    font-size: 15px;
+    pointer-events: none;
+  }
+
+  /* ── Image preview ── */
+  .apf-image-preview {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--color-bg);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    animation: fadeIn .2s ease;
+  }
+
+  .apf-image-preview img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    flex-shrink: 0;
+  }
+
+  .apf-image-preview p {
+    font-size: 12px;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  /* ── Price history ── */
+  .apf-price-history {
+    margin-top: 28px;
+  }
+
+  .apf-price-history-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--color-label);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .apf-price-history-badge {
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 100px;
+    letter-spacing: .04em;
+  }
+
+  .apf-price-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 10px;
+    animation: fadeIn .2s ease;
+  }
+
+  .apf-price-empty {
+    font-size: 13px;
+    color: var(--color-muted);
+    font-style: italic;
+    padding: 12px 0;
+  }
+
+  /* ── DatePicker override ── */
+  .react-datepicker-wrapper {
+    width: 100%;
+  }
+  .react-datepicker__input-container input {
+    width: 100%;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--color-text);
+    background: var(--color-bg);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: border-color .18s, box-shadow .18s;
+    box-sizing: border-box;
+  }
+  .react-datepicker__input-container input:focus {
+    border-color: var(--color-accent);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(232,87,42,.10);
+  }
+
+  /* ── Footer / submit ── */
+  .apf-footer {
+    padding: 28px 40px;
+    background: #faf9f7;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  @media (max-width: 640px) {
+    .apf-footer { flex-direction: column; padding: 24px 20px; }
+    .apf-footer p { text-align: center; }
+  }
+
+  .apf-footer p {
+    font-size: 12px;
+    color: var(--color-muted);
+    margin: 0;
+    max-width: 340px;
+    line-height: 1.5;
+  }
+
+  .apf-submit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 32px;
+    background: var(--color-primary);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background .18s, transform .12s, box-shadow .18s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .apf-submit:hover:not(:disabled) {
+    background: var(--color-accent);
+    box-shadow: 0 4px 16px rgba(232,87,42,.30);
+    transform: translateY(-1px);
+  }
+
+  .apf-submit:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .apf-submit:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+  }
+
+  .apf-spinner {
+    width: 15px;
+    height: 15px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+`;
+
+/* ─── Helper: Field wrapper ───────────────────────────────────────────────── */
+function Field({ label, error, children }) {
+  return (
+    <div className="apf-field">
+      {label && <label className="apf-label">{label}</label>}
+      {children}
+      {error && <span className="apf-error">This field is required</span>}
+    </div>
+  );
+}
+
+/* ─── Main Component ─────────────────────────────────────────────────────── */
 export default function AddProductForm() {
   const { user } = UseAuth();
   const axiosSecure = UseAxiosSecure();
 
-  // Form configuration with react-hook-form
   const {
     register,
     handleSubmit,
@@ -32,22 +415,18 @@ export default function AddProductForm() {
     defaultValues: {
       date: new Date(),
       status: "pending",
-      prices: [{ date: new Date().toISOString().split("T")[0], price: "" }],
-      image: "", // Initialize image as empty string for URL
+      prices: [],
+      image: "",
     },
   });
 
-  // Dynamic price fields management
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "prices",
-  });
+  const { fields } = useFieldArray({ control, name: "prices" });
 
-  // State variables
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const imageUrl = watch("image"); // Watch image URL changes
+  const imageUrl = watch("image");
+  const pricePerUnit = watch("pricePerUnit");
 
-  // Set vendor info when user loads
+  /* Set vendor info */
   useEffect(() => {
     if (user) {
       setValue("vendor", user.email);
@@ -55,7 +434,15 @@ export default function AddProductForm() {
     }
   }, [user, setValue]);
 
-  // Form submission handler
+  /* Auto-update price history — always single row, replaces on change */
+  useEffect(() => {
+    if (!pricePerUnit) return;
+    const chosenDate = selectedDate
+      ? new Date(selectedDate).toISOString().split("T")[0]
+      : new Date().toISOString().split("T")[0];
+    setValue("prices", [{ date: chosenDate, price: pricePerUnit }]);
+  }, [pricePerUnit, selectedDate, setValue]);
+
   const onSubmit = async (data) => {
     try {
       const response = await axiosSecure.post("/products", data);
@@ -74,271 +461,208 @@ export default function AddProductForm() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto my-10 px-4">
-      {/* Header Section */}
-      <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2">
-          <FiShoppingBag className="text-blue-600" />
-          Add New Product
-        </h1>
-        <p className="text-gray-600 text-lg">
-          Fill out the form below to add a new product to the marketplace
-        </p>
-      </div>
+    <>
+      <style>{styles}</style>
 
-      {/* Form Container */}
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-        <form onSubmit={handleSubmit(onSubmit)} className="p-8">
-          {/* Vendor Information Section */}
-          <div className="mb-10">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2 pb-2 border-b border-gray-200">
-              <FiUser className="text-blue-500" />
-              Vendor Information
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Vendor Email
-                </label>
-                <input
-                  type="email"
-                  {...register("vendor")}
-                  readOnly
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Vendor Name
-                </label>
-                <input
-                  type="text"
-                  {...register("vendorName")}
-                  readOnly
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-                />
-              </div>
+      <div className="apf-root">
+        <div className="apf-inner">
+
+          {/* ── Header ── */}
+          <div className="apf-header">
+            <div className="apf-header-eyebrow">
+              <FiPackage size={11} /> Product Listing
             </div>
+            <h1>Add New Product</h1>
+            <p>Fill in the details below to list a product on the marketplace.</p>
           </div>
 
-          {/* Market Information Section */}
-          <div className="mb-10">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2 pb-2 border-b border-gray-200">
-              <FiShoppingBag className="text-blue-500" />
-              Market Information
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Market Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...register("marketName", { required: true })}
-                  placeholder="e.g., Kawran Bazar"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                {errors.marketName && (
-                  <p className="text-sm text-red-600">Market name is required</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Date <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <DatePicker
-                    selected={selectedDate}
-                    onChange={(date) => {
-                      setSelectedDate(date);
-                      setValue("date", date);
-                    }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <FiCalendar className="absolute right-3 top-3.5 text-gray-400" />
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Market Description <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                {...register("marketDescription", { required: true })}
-                rows={4}
-                placeholder="Describe the market location, special features, etc."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              {errors.marketDescription && (
-                <p className="text-sm text-red-600">Market description is required</p>
-              )}
-            </div>
-          </div>
+          {/* ── Card ── */}
+          <div className="apf-card">
+            <form onSubmit={handleSubmit(onSubmit)}>
 
-          {/* Product Information Section */}
-          <div className="mb-10">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2 pb-2 border-b border-gray-200">
-              <FiInfo className="text-blue-500" />
-              Product Information
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Item Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...register("itemName", { required: true })}
-                  placeholder="e.g., Tomato, Onion, Rice"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                {errors.itemName && (
-                  <p className="text-sm text-red-600">Item name is required</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Price per Unit <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    {...register("pricePerUnit", { required: true })}
-                    type="number"
-                    placeholder="50"
-                    className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <FiDollarSign className="absolute left-3 top-3.5 text-gray-400" />
+              {/* ── Section 1: Vendor ── */}
+              <div className="apf-section">
+                <div className="apf-section-header">
+                  <div className="apf-section-icon"><FiUser size={16} /></div>
+                  <h2>Vendor Information <span>Auto-filled from your account</span></h2>
                 </div>
-                {errors.pricePerUnit && (
-                  <p className="text-sm text-red-600">Price per unit is required</p>
-                )}
-              </div>
-            </div>
 
-            {/* Image URL Input */}
-            <div className="mb-8 space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Product Image URL
-              </label>
-              <div className="flex flex-col md:flex-row gap-6">
-                <div className="flex-1">
-                  <div className="relative">
+                <div className="apf-grid-2">
+                  <Field label="Email">
                     <input
-                      {...register("image")}
-                      type="url"
-                      placeholder="https://example.com/image.jpg"
-                      className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      type="email"
+                      {...register("vendor")}
+                      readOnly
+                      className="apf-input"
+                      placeholder="vendor@email.com"
                     />
-                    <FiLink className="absolute left-3 top-3.5 text-gray-400" />
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Enter a valid image URL (e.g., from ImgBB, Cloudinary)
-                  </p>
+                  </Field>
+
+                  <Field label="Display Name">
+                    <input
+                      type="text"
+                      {...register("vendorName")}
+                      readOnly
+                      className="apf-input"
+                      placeholder="Your Name"
+                    />
+                  </Field>
                 </div>
-                {imageUrl && (
-                  <div className="w-20 h-20 rounded-lg overflow-hidden border-2 border-gray-200">
-                    <img 
-                      src={imageUrl} 
-                      alt="Preview" 
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/100?text=Invalid+URL";
+              </div>
+
+              {/* ── Section 2: Market ── */}
+              <div className="apf-section">
+                <div className="apf-section-header">
+                  <div className="apf-section-icon"><FiShoppingBag size={16} /></div>
+                  <h2>Market Information</h2>
+                </div>
+
+                <div className="apf-grid-2" style={{ marginBottom: 20 }}>
+                  <Field label="Market Name" error={errors.marketName}>
+                    <input
+                      {...register("marketName", { required: true })}
+                      placeholder="e.g. Kawran Bazar"
+                      className={`apf-input${errors.marketName ? " has-error" : ""}`}
+                    />
+                  </Field>
+
+                  <Field label="Date">
+                    <DatePicker
+                      selected={selectedDate}
+                      onChange={(date) => {
+                        setSelectedDate(date);
+                        setValue("date", date);
                       }}
                     />
+                  </Field>
+                </div>
+
+                <Field label="Market Description" error={errors.marketDescription}>
+                  <textarea
+                    {...register("marketDescription", { required: true })}
+                    rows={3}
+                    placeholder="Briefly describe the market location and its offerings…"
+                    className={`apf-input apf-textarea${errors.marketDescription ? " has-error" : ""}`}
+                  />
+                </Field>
+              </div>
+
+              {/* ── Section 3: Product ── */}
+              <div className="apf-section">
+                <div className="apf-section-header">
+                  <div className="apf-section-icon"><FiInfo size={16} /></div>
+                  <h2>Product Information</h2>
+                </div>
+
+                <div className="apf-grid-2" style={{ marginBottom: 20 }}>
+                  <Field label="Item Name" error={errors.itemName}>
+                    <input
+                      {...register("itemName", { required: true })}
+                      placeholder="e.g. Fresh Tomatoes"
+                      className={`apf-input${errors.itemName ? " has-error" : ""}`}
+                    />
+                  </Field>
+
+                  <Field label="Price per Unit (৳)" error={errors.pricePerUnit}>
+                    <div className="apf-price-wrap">
+                      <FiDollarSign className="apf-price-icon" />
+                      <input
+                        {...register("pricePerUnit", { required: true })}
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        className={`apf-input${errors.pricePerUnit ? " has-error" : ""}`}
+                      />
+                    </div>
+                  </Field>
+                </div>
+
+                {/* Image URL */}
+                <Field label="Product Image URL">
+                  <input
+                    {...register("image")}
+                    type="url"
+                    placeholder="https://example.com/image.jpg"
+                    className="apf-input"
+                  />
+                </Field>
+
+                {imageUrl && (
+                  <div className="apf-image-preview">
+                    <img
+                      src={imageUrl}
+                      alt="Preview"
+                      onError={(e) =>
+                        (e.target.src = "https://via.placeholder.com/60?text=?")
+                      }
+                    />
+                    <p>Image preview loaded successfully. Make sure it looks correct before submitting.</p>
                   </div>
                 )}
-              </div>
-            </div>
 
-            {/* Price History */}
-            <div className="mb-8 space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Price History
-              </label>
-              <div className="space-y-4">
-                {fields.map((item, index) => (
-                  <div key={item.id} className="flex gap-4 items-center">
-                    <div className="flex-1">
-                      <input
-                        type="date"
-                        {...register(`prices.${index}.date`, { required: true })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                      />
-                    </div>
-                    <div className="flex-1 relative">
-                      <input
-                        type="number"
-                        placeholder="Price"
-                        {...register(`prices.${index}.price`, { required: true })}
-                        className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg"
-                      />
-                      <FiDollarSign className="absolute left-3 top-3.5 text-gray-400" />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => remove(index)}
-                      className="p-3 text-red-500 hover:text-red-700 rounded-full hover:bg-red-50"
-                    >
-                      <FiTrash2 className="text-lg" />
-                    </button>
+                {/* Price History */}
+                <div className="apf-price-history">
+                  <div className="apf-price-history-label">
+                    <FiClock size={13} />
+                    Price History
+                    <span className="apf-price-history-badge">Auto Generated</span>
                   </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() =>
-                    append({
-                      date: new Date().toISOString().split("T")[0],
-                      price: "",
-                    })
-                  }
-                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-medium mt-2"
-                >
-                  <FiPlus className="text-lg" /> Add Price Entry
+
+                  {fields.length === 0 ? (
+                    <p className="apf-price-empty">
+                      Price history will appear here once you enter a price above.
+                    </p>
+                  ) : (
+                    fields.map((item, index) => (
+                      <div key={item.id} className="apf-price-row">
+                        <Field label="Date">
+                          <input
+                            type="date"
+                            {...register(`prices.${index}.date`)}
+                            readOnly
+                            className="apf-input"
+                          />
+                        </Field>
+                        <Field label="Price (৳)">
+                          <input
+                            type="number"
+                            {...register(`prices.${index}.price`)}
+                            readOnly
+                            className="apf-input"
+                          />
+                        </Field>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* ── Footer ── */}
+              <div className="apf-footer">
+                <p>
+                  All fields marked required must be filled before submitting.
+                  Price history is tracked automatically.
+                </p>
+                <button type="submit" disabled={isSubmitting} className="apf-submit">
+                  {isSubmitting ? (
+                    <>
+                      <span className="apf-spinner" />
+                      Processing…
+                    </>
+                  ) : (
+                    <>
+                      <FiCheckCircle size={15} />
+                      Submit Product
+                    </>
+                  )}
                 </button>
               </div>
-            </div>
 
-            {/* Product Description */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Product Description
-              </label>
-              <textarea
-                {...register("itemDescription")}
-                rows={5}
-                placeholder="Describe the product quality, features, etc."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
+            </form>
           </div>
-
-          {/* Submit Button */}
-          <div className="mt-12">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-200 text-lg ${
-                isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-              }`}
-            >
-              {isSubmitting ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg 
-                    className="animate-spin h-5 w-5 text-white" 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24"
-                  >
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Processing...
-                </span>
-              ) : (
-                "Submit Product"
-              )}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

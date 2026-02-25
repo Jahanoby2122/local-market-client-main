@@ -2,7 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import UseAuth from "../Hooks/UseAuth";
 import { toast } from "react-toastify";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import SocialLogin from "./SocialLogin/SocialLogin";
 
 const Login = () => {

@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import UseAuth from '../Hooks/UseAuth';
 import axios from 'axios';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { FiEdit2, FiTrash2, FiPackage, FiAlertCircle, FiX } from 'react-icons/fi';
 import { ImSpinner8 } from 'react-icons/im';
 import { toast } from 'react-toastify';

@@ -1,9 +1,10 @@
-import { Link, NavLink, useNavigate } from 'react-router';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import UseAuth from '../Hooks/UseAuth';
 import { toast } from 'react-toastify';
 import logo from '../assets/LocalMarket.png';
 import { useState, useEffect, useRef } from 'react';
 import { FiLogOut, FiBarChart2, FiUser, FiChevronDown, FiMenu, FiX, FiSettings, FiHelpCircle, FiShoppingBag, FiPackage } from 'react-icons/fi';
+
 
 const NavBar = () => {
   const { user, logoutUser } = UseAuth();

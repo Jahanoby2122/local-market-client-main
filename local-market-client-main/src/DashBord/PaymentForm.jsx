@@ -1,7 +1,7 @@
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import UseAxiosSecure from "../Hooks/UseAxiosSecure";
 import UseAuth from "../Hooks/UseAuth";
 import { toast } from "react-toastify";

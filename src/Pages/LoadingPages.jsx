@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router';
+import { useLocation } from 'react-router-dom';
 import logo from '../assets/LocalMarket.png';
 
 const LoadingPages = () => {

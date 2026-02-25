@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import UseAuth from '../Hooks/UseAuth';
 import SocialLogin from './SocialLogin/SocialLogin';
 import { toast } from 'react-toastify';
-import { useNavigate, useLocation, Link } from 'react-router';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import UseAxios from '../Hooks/UseAxios';
 import { User, Mail, Image, Lock } from 'lucide-react';
 

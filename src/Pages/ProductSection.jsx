@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiCalendar, FiUser, FiEye, FiMapPin, FiTag } from 'react-icons/fi';
 
@@ -52,12 +52,12 @@ const ProductSection = () => {
   const shimmerLoading = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {[...Array(6)].map((_, index) => (
-        <div key={index} className="bg-white rounded-xl border border-gray-200 overflow-hidden animate-pulse">
-          <div className="h-44 bg-gray-200" />
+        <div key={index} className=" rounded-xl border border-gray-200 overflow-hidden animate-pulse">
+          <div className="h-44 " />
           <div className="p-4 space-y-3">
-            <div className="h-4 bg-gray-200 rounded w-3/4" />
-            <div className="h-4 bg-gray-200 rounded w-1/4" />
-            <div className="h-8 bg-gray-200 rounded" />
+            <div className="h-4  rounded w-3/4" />
+            <div className="h-4 rounded w-1/4" />
+            <div className="h-8 rounded" />
           </div>
         </div>
       ))}
@@ -120,6 +120,7 @@ const ProductSection = () => {
                 overflow-hidden 
                 shadow-sm 
                 hover:shadow-xl 
+                hover: text-white
                 transition-all 
                 duration-300
                 h-full
@@ -233,10 +234,11 @@ const ProductSection = () => {
                       transition-all duration-300
                       hover:from-emerald-600
                       hover:to-emerald-700
-                      hover:text-white
+                      hover:text-whit
                       hover:border-emerald-600
                       hover:shadow-lg
                       mt-auto
+                      hover:text-white
                     "
                   >
                     <span>View Full Details</span>
@@ -254,18 +256,18 @@ const ProductSection = () => {
           className="text-center mt-12"
         >
           <Link
-            to="/products"
+            to="/allproduct"
             className="
+              bg-[#288a4c]
+              text-white
+              px-6 py-3
+              rounded-full
+              font-medium
               inline-flex items-center gap-2
-              px-8 py-3
-              bg-white
-              border border-gray-300
-              rounded-xl
-              text-gray-800 font-semibold
-              hover:bg-gray-50
-              hover:border-gray-400
-              hover:shadow-md
               transition-all duration-300
+              hover:bg-[#1f6b37]
+              hover:shadow-lg
+             
             "
           >
             View All Products
