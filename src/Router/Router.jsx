@@ -23,8 +23,6 @@ import MyAdvertisements from "../DashBord/MyAdvertisements";
 import AllAdvertisements from "../DashBord/AllAdvertisements";
 import ErrorPages from "../Pages/ErrorPages";
 import AllOrders from "../DashBord/AllOrders";
-import AboutUs from "../Pages/AboutUs";
-import Support from "../Pages/Support";
 import Terms from "../Pages/Terms";
 import Privacy from "../Pages/Privacy";
 import Faq from "../Pages/Faq";
@@ -58,14 +56,7 @@ export const router = createBrowserRouter([
         path:'/allproduct',
         element:<AllProduct></AllProduct>
       },
-      {
-        path:'/about',
-        element:<AboutUs></AboutUs>
-      },
-      {
-        path: '/support',
-        element:<Support></Support>
-      },
+
       {
         path: '/terms',
         element: <Terms />

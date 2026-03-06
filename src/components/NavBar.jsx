@@ -92,8 +92,8 @@ const NavBar = () => {
     <>
       <li className="animate-fadeInDown" style={{ animationDelay: '0ms' }}><NavItem to="/" className={linkStyle}>Home</NavItem></li>
       <li className="animate-fadeInDown" style={{ animationDelay: '50ms' }}><NavItem to="/allproduct" className={linkStyle}>All Products</NavItem></li>
-      <li className="animate-fadeInDown" style={{ animationDelay: '100ms' }}><NavItem to="/about" className={linkStyle}>About Us</NavItem></li>
-      <li className="animate-fadeInDown" style={{ animationDelay: '150ms' }}><NavItem to="/support" className={linkStyle}>Support</NavItem></li>
+  
+
       {user && <li className="animate-fadeInDown" style={{ animationDelay: '200ms' }}><NavItem to="/dashbord" className={linkStyle}>Dashboard</NavItem></li>}
     </>
   );
